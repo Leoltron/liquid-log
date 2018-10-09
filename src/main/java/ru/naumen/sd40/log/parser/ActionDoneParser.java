@@ -1,13 +1,13 @@
 package ru.naumen.sd40.log.parser;
 
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 /**
  * Created by doki on 22.10.16.
@@ -42,6 +42,8 @@ public class ActionDoneParser
     private int getDtObjectActions = 0;
 
     private int searchActions = 0;
+
+    private int getCatalogsActions = 0;
 
     boolean nan = true;
 
@@ -108,6 +110,10 @@ public class ActionDoneParser
     public int getFormActions()
     {
         return getFormActions;
+    }
+
+    public int getCatalogsActions() {
+        return getCatalogsActions;
     }
 
     public double getMax()
@@ -182,6 +188,10 @@ public class ActionDoneParser
             {
                 addObjectActions++;
             }
+            else if (actionInLowerCase.equals("getcatalogsaction"))
+            {
+                getCatalogsActions++;
+            }
             else if (actionInLowerCase.equals("editobjectaction"))
             {
                 editObjectsActions++;
@@ -192,7 +202,6 @@ public class ActionDoneParser
             }
             else if (!actionInLowerCase.contains("advlist")
                     && actionInLowerCase.matches("(?i)^([a-zA-Z]+|Get)[a-zA-Z]+List[a-zA-Z]+"))
-
             {
                 getListActions++;
             }
