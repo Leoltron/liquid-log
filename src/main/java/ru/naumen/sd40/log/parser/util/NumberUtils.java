@@ -1,4 +1,4 @@
-package ru.naumen.sd40.log.parser;
+package ru.naumen.sd40.log.parser.util;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
