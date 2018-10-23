@@ -1,6 +1,7 @@
-package ru.naumen.sd40.log.parser.parsers;
+package ru.naumen.sd40.log.parser.parsers.top;
 
 import ru.naumen.sd40.log.parser.data.TopData;
+import ru.naumen.sd40.log.parser.parsers.IDataParser;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

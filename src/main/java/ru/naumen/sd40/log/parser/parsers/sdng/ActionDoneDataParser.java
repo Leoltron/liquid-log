@@ -1,6 +1,7 @@
-package ru.naumen.sd40.log.parser.parsers;
+package ru.naumen.sd40.log.parser.parsers.sdng;
 
 import ru.naumen.sd40.log.parser.data.ActionDoneData;
+import ru.naumen.sd40.log.parser.parsers.IDataParser;
 
 import java.util.HashSet;
 import java.util.Set;
