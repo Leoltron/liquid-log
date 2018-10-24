@@ -4,10 +4,11 @@ import ru.naumen.sd40.log.parser.data.DataSet;
 import ru.naumen.sd40.log.parser.util.DateUtils;
 import ru.naumen.sd40.log.parser.util.Pair;
 
+import java.io.Closeable;
 import java.text.ParseException;
 import java.util.function.Function;
 
-public abstract class LogParser<TData> implements ILogParser<Pair<Long, DataSet>>
+public abstract class LogParser<TData> implements ILogParser<Pair<Long, DataSet>>, Closeable
 {
     private IDataConsumer<Pair<Long, DataSet>> dataConsumer;
 
@@ -60,5 +61,14 @@ public abstract class LogParser<TData> implements ILogParser<Pair<Long, DataSet>
     public void configureTimeZone(String zoneId)
     {
         timeParser.setTimeZone(zoneId);
+    }
+
+    @Override
+    public void close()
+    {
+        if (dataConsumer != null)
+        {
+            dataConsumer.consume(currentPair);
+        }
     }
 }
