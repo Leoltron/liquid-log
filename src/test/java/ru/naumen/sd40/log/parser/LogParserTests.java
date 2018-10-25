@@ -62,4 +62,12 @@ public class LogParserTests
 
         verify(consumer, times(1)).consume(any());
     }
+
+    @Test
+    public void mustNotCallConsumerAfterCloseWithoutData()
+    {
+        parser.close();
+
+        verify(consumer, times(0)).consume(any());
+    }
 }

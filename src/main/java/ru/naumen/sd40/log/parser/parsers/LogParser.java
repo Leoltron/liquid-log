@@ -66,7 +66,7 @@ public abstract class LogParser<TData> implements ILogParser<Pair<Long, DataSet>
     @Override
     public void close()
     {
-        if (dataConsumer != null)
+        if (currentPair != null && dataConsumer != null)
         {
             dataConsumer.consume(currentPair);
         }
