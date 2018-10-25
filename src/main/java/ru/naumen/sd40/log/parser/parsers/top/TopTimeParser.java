@@ -1,4 +1,6 @@
-package ru.naumen.sd40.log.parser.parsers;
+package ru.naumen.sd40.log.parser.parsers.top;
+
+import ru.naumen.sd40.log.parser.parsers.AbstractTimeParser;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

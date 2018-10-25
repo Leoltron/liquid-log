@@ -2,19 +2,21 @@ package ru.naumen.sd40.log.parser.parsers;
 
 import ru.naumen.sd40.log.parser.data.DataSet;
 import ru.naumen.sd40.log.parser.util.DateUtils;
+import ru.naumen.sd40.log.parser.util.Pair;
 
+import java.io.Closeable;
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Function;
 
-public abstract class LogParser<TData> implements ILogParser<Map<Long, DataSet>>
+public abstract class LogParser<TData> implements ILogParser<Pair<Long, DataSet>>, Closeable
 {
-    private final Map<Long, DataSet> data = new HashMap<>();
+    private IDataConsumer<Pair<Long, DataSet>> dataConsumer;
+
     private final IDataParser<TData> dataParser;
     private final ITimeParser timeParser;
     private final Function<DataSet, TData> selector;
-    private long lastTime = -1;
+
+    private Pair<Long, DataSet> currentPair;
 
     protected LogParser(IDataParser<TData> dataParser, ITimeParser timeParser, Function<DataSet, TData> selector)
     {
@@ -26,31 +28,47 @@ public abstract class LogParser<TData> implements ILogParser<Map<Long, DataSet>>
     @Override
     public void parseLine(String line) throws ParseException
     {
-        lastTime = timeParser.parseTime(line);
-        if (lastTime == 0)
+        final long time = timeParser.parseTime(line);
+        if (time == 0)
         {
             return;
         }
-        lastTime = DateUtils.roundTo5Minutes(lastTime);
+        final long roundedTime = DateUtils.roundTo5Minutes(time);
 
-        DataSet dataSet = data.computeIfAbsent(lastTime, k -> new DataSet());
-        dataParser.parseLine(line, selector.apply(dataSet));
-    }
+        if (currentPair == null)
+        {
+            currentPair = new Pair<>(roundedTime, new DataSet());
+        }
+        else if (roundedTime != currentPair.item1)
+        {
+            if (dataConsumer != null)
+            {
+                dataConsumer.consume(currentPair);
+            }
+            currentPair = new Pair<>(roundedTime, new DataSet());
+        }
 
-    public long getLastTime()
-    {
-        return lastTime;
+        dataParser.parseLine(line, selector.apply(currentPair.item2));
     }
 
     @Override
-    public Map<Long, DataSet> getResultData()
+    public void setDataConsumer(IDataConsumer<Pair<Long, DataSet>> dataConsumer)
     {
-        return data;
+        this.dataConsumer = dataConsumer;
     }
 
     @Override
     public void configureTimeZone(String zoneId)
     {
         timeParser.setTimeZone(zoneId);
+    }
+
+    @Override
+    public void close()
+    {
+        if (currentPair != null && dataConsumer != null)
+        {
+            dataConsumer.consume(currentPair);
+        }
     }
 }
