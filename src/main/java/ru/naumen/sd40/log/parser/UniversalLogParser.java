@@ -16,29 +16,17 @@ import java.text.ParseException;
 /**
  * Created by doki on 22.10.16.
  */
-public class Main
+public class UniversalLogParser
 {
-    /**
-     * @param args [0] log file path, [1] influx database name, [2] timezone (optional)
-     * @throws IOException
-     * @throws ParseException
-     */
-    public static void main(String[] args) throws IOException, ParseException
+
+    public void parseAndUploadLogs(String mode, String logFilePath, String influxDbName, String timeZone)
+            throws IOException, ParseException
     {
-        checkArgs(args);
-
-        final String logFilePath = args[0];
-        final String mode = System.getProperty("parse.mode", "");
-
         ILogParser<Pair<Long, DataSet>> logParser = getLogParser(mode, logFilePath);
         int bufferSize = getBufferSize(mode);
+        logParser.configureTimeZone(timeZone);
 
-        if (args.length > 2)
-        {
-            logParser.configureTimeZone(args[2]);
-        }
-
-        try (final LogDataWriter writer = new LogDataWriter(args[1]))
+        try (final LogDataWriter writer = new LogDataWriter(influxDbName))
         {
             logParser.setDataConsumer(writer);
             try (BufferedReader br = new BufferedReader(new FileReader(logFilePath), bufferSize))
@@ -72,14 +60,6 @@ public class Main
                 return 32 * 1024 * 1024;
             default:
                 return 8 * 1024;
-        }
-    }
-
-    private static void checkArgs(String[] args)
-    {
-        if (args.length < 2)
-        {
-            throw new IllegalArgumentException("Expected at least 2 arguments, got " + args.length);
         }
     }
 
