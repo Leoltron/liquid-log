@@ -74,21 +74,21 @@
 
 <div class="container">
     <h1>Upload log file</h1>
-    <form class="form-inline">
+    <form class="form-inline" method="POST" enctype="multipart/form-data" action="/uploadLog">
     <div class="form-group mx-sm-3 mb-2">
     <label for="inputDBName" class="sr-only">InfluxDB name</label>
-    <input type="text" class="form-control" id="inputDBName" placeholder="InfluxDB name" required>
+    <input type="text" class="form-control" id="inputDBName" placeholder="InfluxDB name" name="dbName" required>
     </div>
     <div class="form-group mb-2">
-        <select class="form-control" required>
+    <select class="form-control" name="type" required>
             <option value="">Select log type</option>
             <option value="sdng">SDNG</option>
-            <option value="gc">CG</option>
+    <option value="gc">GC</option>
             <option value="top">Top</option>
         </select>
     </div>
     <div class="form-group mb-2">
-    <select class="form-control" required>
+    <select class="form-control" name="timeZone" required>
     <option value="">Select time zone</option>
     <option value="UTC">Coordinated Universal Time</option>
     <option value="GMT-12:00">(GMT-12:00) International Date Line West</option>
@@ -176,10 +176,11 @@
     </select>
     </div>
     <div class="form-group mb-2">
-    <input type="file" class="form-control form-control-file" id="logUploadControl" required>
+    <input type="file" class="form-control form-control-file" id="logUploadControl" name="file" required>
     </div>
     <div class="form-check mb-2">
-    <input class="form-check-input" type="checkbox" id="printTraceResult" value="option1">
+    <input class="form-check-input" type="checkbox" id="printTraceResult" value="printTraceResult"
+    name="printTraceResult">
     <label class="form-check-label" for="printTraceResult">Print trace result</label>
     </div>
 

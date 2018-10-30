@@ -1,13 +1,5 @@
 package ru.naumen.perfhouse.controllers;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
 import org.json.JSONObject;
@@ -18,9 +10,21 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
-
 import ru.naumen.perfhouse.influx.InfluxDAO;
+import ru.naumen.sd40.log.parser.ParseMode;
+import ru.naumen.sd40.log.parser.UniversalLogParser;
+import ru.naumen.sd40.log.parser.util.BufferedReaderBuilder;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by dkirpichenkov on 26.10.16.
@@ -28,13 +32,15 @@ import ru.naumen.perfhouse.influx.InfluxDAO;
 @Controller
 public class ClientsController
 {
-    private Logger LOG = LoggerFactory.getLogger(ClientsController.class);
-    private InfluxDAO influxDAO;
+    private final Logger LOG = LoggerFactory.getLogger(ClientsController.class);
+    private final InfluxDAO influxDAO;
+    private final UniversalLogParser logParser;
 
     @Inject
     public ClientsController(InfluxDAO influxDAO)
     {
         this.influxDAO = influxDAO;
+        this.logParser = new UniversalLogParser(influxDAO);
     }
 
     @RequestMapping(path = "/")
@@ -51,7 +57,8 @@ public class ClientsController
         DateTime prevMonth = now.minusMonths(1);
         DateTime yesterday = now.minusDays(1);
 
-        clients.forEach(it -> {
+        clients.forEach(it ->
+        {
             clientLinks.put(it, "/history/" + it + "/" + yesterday.getYear() + "/" + yesterday.getMonthOfYear() + "/"
                     + yesterday.getDayOfMonth());
 
@@ -75,7 +82,7 @@ public class ClientsController
 
     @RequestMapping(path = "{client}", method = RequestMethod.POST)
     public void postClientStatFormat1(@PathVariable("client") String client, HttpServletRequest request,
-            HttpServletResponse response) throws IOException
+                                      HttpServletResponse response) throws IOException
     {
         try
         {
@@ -85,11 +92,32 @@ public class ClientsController
             JSONObject measure = new JSONObject(data);
             influxDAO.storeFromJSon(null, client, measure);
             response.sendError(HttpServletResponse.SC_OK);
-        }
-        catch (Exception ex)
+        } catch (Exception ex)
         {
             LOG.error(ex.toString(), ex);
             throw ex;
+        }
+    }
+
+    @RequestMapping(path = "/uploadLog", method = RequestMethod.POST)
+    public void uploadLog(@RequestParam("file") MultipartFile file,
+                          @RequestParam("dbName") String dbName,
+                          @RequestParam("type") String type,
+                          @RequestParam("timeZone") String timeZone,
+                          @RequestParam(value = "printTraceResult", required = false) String printTraceResult
+    )
+    {
+        boolean printOutput = printTraceResult != null;
+
+        try
+        {
+            ParseMode mode = ParseMode.valueOf(type.toUpperCase());
+            BufferedReaderBuilder builder = new BufferedReaderBuilder(new InputStreamReader(file.getInputStream()));
+
+            logParser.parseAndUploadLogs(mode, file.getOriginalFilename(), builder, dbName, timeZone, printOutput);
+        } catch (Exception e)
+        {
+            LOG.error("An error occurred during input log parse:", e);
         }
     }
 }
