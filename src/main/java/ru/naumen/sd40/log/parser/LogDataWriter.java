@@ -12,23 +12,29 @@ public class LogDataWriter implements IDataConsumer<Pair<Long, DataSet>>, Closea
 {
     private final InfluxDAO influxDAO;
     private final BatchPoints batchPoints;
-    private final boolean printCsvData = System.getProperty("NoCsv") == null;
+    private final boolean printCsvData;
     private final String dbName;
 
-    public LogDataWriter(String dbName)
+    public LogDataWriter(InfluxDAO influxDAO, String dbName)
     {
+        this(influxDAO, dbName, System.getProperty("NoCsv") != null);
+    }
+
+    public LogDataWriter(InfluxDAO influxDAO, String dbName, boolean printCsvData)
+    {
+        this.printCsvData = printCsvData;
+
         if (dbName == null)
         {
             throw new NullPointerException("dbName cannot be null");
         }
 
         this.dbName = dbName.replaceAll("-", "_");
-        influxDAO = new InfluxDAO(System.getProperty("influx.host"), System.getProperty("influx.user"),
-                System.getProperty("influx.password"));
-        influxDAO.init();
-        influxDAO.connectToDB(this.dbName);
+        this.influxDAO = influxDAO;
+        this.influxDAO.init();
+        this.influxDAO.connectToDB(this.dbName);
 
-        batchPoints = influxDAO.startBatchPoints(this.dbName);
+        batchPoints = this.influxDAO.startBatchPoints(this.dbName);
 
         if (printCsvData)
         {
