@@ -8,7 +8,7 @@ import java.io.Closeable;
 import java.text.ParseException;
 import java.util.function.Function;
 
-public abstract class LogParser<TData> implements ILogParser<Pair<Long, DataSet>>, Closeable
+public abstract class LogParser<TData> extends SimpleLogParser<Pair<Long, DataSet>> implements Closeable
 {
     private IDataConsumer<Pair<Long, DataSet>> dataConsumer;
 

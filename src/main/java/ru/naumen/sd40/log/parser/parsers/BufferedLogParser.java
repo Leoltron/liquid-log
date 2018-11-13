@@ -15,12 +15,12 @@ public class BufferedLogParser<TResultData>
         this.bufferedReader = bufferedReader;
     }
 
-    public void parse() throws IOException, ParseException
+    public void parse(Object... additionalData) throws IOException, ParseException
     {
         String line;
         while ((line = bufferedReader.readLine()) != null)
         {
-            logParser.parseLine(line);
+            logParser.parseLine(line, additionalData);
         }
     }
 }

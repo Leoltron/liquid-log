@@ -4,7 +4,7 @@ import java.text.ParseException;
 
 public interface ILogParser<Data>
 {
-    void parseLine(String line) throws ParseException;
+    void parseLine(String line, Object... additionalData) throws ParseException;
 
     void setDataConsumer(IDataConsumer<Data> dataConsumer);
 
