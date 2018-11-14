@@ -1,11 +1,13 @@
 package ru.naumen.sd40.log.parser.parsers.top;
 
+import org.springframework.stereotype.Component;
 import ru.naumen.sd40.log.parser.data.TopData;
 import ru.naumen.sd40.log.parser.parsers.IDataParser;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Component
 public class TopDataParser implements IDataParser<TopData>
 {
     private static final Pattern CPU_AND_MEM_PATTERN = Pattern
@@ -31,7 +33,6 @@ public class TopDataParser implements IDataParser<TopData>
             {
                 data.addCpu(Double.valueOf(cpuAndMemMatcher.group(1)));
                 data.addMem(Double.valueOf(cpuAndMemMatcher.group(2)));
-                return;
             }
         }
     }

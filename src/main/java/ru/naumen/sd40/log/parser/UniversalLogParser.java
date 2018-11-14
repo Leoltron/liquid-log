@@ -3,10 +3,11 @@ package ru.naumen.sd40.log.parser;
 import org.springframework.stereotype.Component;
 import ru.naumen.perfhouse.influx.InfluxDAO;
 import ru.naumen.sd40.log.parser.data.DataSet;
+import ru.naumen.sd40.log.parser.parsers.AbstractTimeParserBuilder;
 import ru.naumen.sd40.log.parser.parsers.BufferedLogParser;
 import ru.naumen.sd40.log.parser.parsers.ILogParser;
+import ru.naumen.sd40.log.parser.parsers.ITimeParser;
 import ru.naumen.sd40.log.parser.util.BufferedReaderBuilder;
-import ru.naumen.sd40.log.parser.util.Pair;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,22 +36,22 @@ public class UniversalLogParser
                                    boolean printOutput)
             throws IOException, ParseException
     {
-        ILogParser<Pair<Long, DataSet>> logParser = parseModes.getLogParser(mode);
-        logParser.configureTimeZone(timeZone);
+        ILogParser<Long, DataSet> logParser = parseModes.getLogParser(mode);
+        AbstractTimeParserBuilder timeParserBuilder = parseModes.getTimeParserBuilder(mode);
 
-        Object[] additionalData = new Object[0];
-        if (logFilePath.equalsIgnoreCase("top"))
-        {
-            additionalData = new Object[]{logFilePath};
-        }
+        timeParserBuilder.setLogFileName(logFilePath);
+        timeParserBuilder.setTimeZone(timeZone);
+
+        ITimeParser timeParser = timeParserBuilder.build();
 
         try (final LogDataWriter writer = new LogDataWriter(influxDAO, influxDbName, printOutput))
         {
-            logParser.setDataConsumer(writer);
+            logParser.setDataStorage(writer);
             try (BufferedReader br = brBuilder.size(parseModes.getBufferSize(mode)).build())
             {
-                new BufferedLogParser<>(logParser, br).parse(additionalData);
+                new BufferedLogParser<>(logParser, br).parse(timeParser);
             }
+            writer.onDataChunkFinished(timeParser.getLastParsedTime());
         }
     }
 }

@@ -1,5 +1,6 @@
 package ru.naumen.sd40.log.parser.parsers.sdng;
 
+import org.springframework.stereotype.Component;
 import ru.naumen.sd40.log.parser.data.ActionDoneData;
 import ru.naumen.sd40.log.parser.parsers.IDataParser;
 
@@ -8,6 +9,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Component
 public class ActionDoneDataParser implements IDataParser<ActionDoneData>
 {
     private static final Pattern DONE_REG_EX = Pattern.compile("Done\\((\\d+)\\): ?(.*?Action)");

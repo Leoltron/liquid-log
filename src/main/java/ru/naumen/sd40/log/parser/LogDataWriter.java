@@ -3,17 +3,19 @@ package ru.naumen.sd40.log.parser;
 import org.influxdb.dto.BatchPoints;
 import ru.naumen.perfhouse.influx.InfluxDAO;
 import ru.naumen.sd40.log.parser.data.*;
-import ru.naumen.sd40.log.parser.parsers.IDataConsumer;
-import ru.naumen.sd40.log.parser.util.Pair;
+import ru.naumen.sd40.log.parser.parsers.IDataStorage;
 
 import java.io.Closeable;
+import java.util.HashMap;
 
-public class LogDataWriter implements IDataConsumer<Pair<Long, DataSet>>, Closeable
+public class LogDataWriter implements IDataStorage<Long, DataSet>, Closeable
 {
     private final InfluxDAO influxDAO;
     private final BatchPoints batchPoints;
     private final boolean printCsvData;
     private final String dbName;
+
+    private final HashMap<Long, DataSet> processingDataSets = new HashMap<>();
 
     public LogDataWriter(InfluxDAO influxDAO, String dbName)
     {
@@ -43,10 +45,9 @@ public class LogDataWriter implements IDataConsumer<Pair<Long, DataSet>>, Closea
     }
 
     @Override
-    public void consume(Pair<Long, DataSet> longDataSetPair)
+    public synchronized void onDataChunkFinished(Long time)
     {
-        DataSet dataSet = longDataSetPair.item2;
-        long time = longDataSetPair.item1;
+        DataSet dataSet = getData(time);
 
         ActionDoneData adData = dataSet.getActionsDone();
         adData.calculate();
@@ -79,5 +80,15 @@ public class LogDataWriter implements IDataConsumer<Pair<Long, DataSet>>, Closea
     public void close()
     {
         influxDAO.writeBatch(batchPoints);
+    }
+
+    @Override
+    public DataSet getData(Long timeMillis)
+    {
+        if (!this.processingDataSets.containsKey(timeMillis))
+        {
+            processingDataSets.put(timeMillis, new DataSet());
+        }
+        return processingDataSets.get(timeMillis);
     }
 }

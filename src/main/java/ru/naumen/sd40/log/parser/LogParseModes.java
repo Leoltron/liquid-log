@@ -2,43 +2,62 @@ package ru.naumen.sd40.log.parser;
 
 import org.springframework.stereotype.Component;
 import ru.naumen.sd40.log.parser.data.DataSet;
+import ru.naumen.sd40.log.parser.parsers.AbstractTimeParserBuilder;
 import ru.naumen.sd40.log.parser.parsers.ILogParser;
-import ru.naumen.sd40.log.parser.parsers.gc.GCParser;
-import ru.naumen.sd40.log.parser.parsers.sdng.SdngParser;
-import ru.naumen.sd40.log.parser.parsers.top.TopParser;
-import ru.naumen.sd40.log.parser.util.Pair;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 @Component
 public class LogParseModes
 {
-    private final GCParser gcParser;
-    private final SdngParser sdngParser;
-    private final TopParser topParser;
+    private final HashMap<String, ILogParser<Long, DataSet>> logParsers = new HashMap<>();
+    private final HashMap<String, AbstractTimeParserBuilder> timeParsers = new HashMap<>();
 
-    public LogParseModes(GCParser gcParser, SdngParser sdngParser, TopParser topParser)
+    public LogParseModes(List<ILogParser<Long, DataSet>> logParsers, List<AbstractTimeParserBuilder> timeParserBuilders)
     {
-        this.gcParser = gcParser;
-        this.sdngParser = sdngParser;
-        this.topParser = topParser;
-    }
-
-    public ILogParser<Pair<Long, DataSet>> getLogParser(String mode)
-    {
-        switch (mode.toLowerCase())
+        for (ILogParser<Long, DataSet> logParser : logParsers)
         {
-            case "sdng":
-                return sdngParser;
-            case "top":
-                return topParser;
-            case "gc":
-                return gcParser;
-            default:
-                throw new IllegalArgumentException(
-                        "Unknown parse mode! Available modes: sdng, gc, top. Requested mode: " + mode);
+            Arrays.stream(logParser.getCompatibleModes())
+                    .forEach(mode -> this.logParsers.put(mode.toLowerCase(), logParser));
+        }
+
+        for (AbstractTimeParserBuilder timeParserBuilder : timeParserBuilders)
+        {
+            Arrays.stream(timeParserBuilder.getCompatibleModes())
+                    .forEach(mode -> this.timeParsers.put(mode.toLowerCase(), timeParserBuilder));
         }
     }
 
-    public int getBufferSize(String mode)
+    ILogParser<Long, DataSet> getLogParser(String mode)
+    {
+        ILogParser<Long, DataSet> logParser = logParsers.getOrDefault(mode.toLowerCase(), null);
+        if (logParser == null)
+        {
+            throw new IllegalArgumentException(
+                    "Unknown parse mode! Available modes: " + String.join(",", logParsers.keySet()) + "." +
+                            " Requested mode: " + mode);
+        }
+
+        return logParser;
+    }
+
+    AbstractTimeParserBuilder getTimeParserBuilder(String mode)
+    {
+        AbstractTimeParserBuilder timeParser = timeParsers.getOrDefault(mode.toLowerCase(), null);
+        if (timeParser == null)
+        {
+
+            throw new IllegalArgumentException(
+                    "Unknown parse mode! Available modes: " + String.join(",", timeParsers.keySet()) + "." +
+                            " Requested mode: " + mode);
+        }
+
+        return timeParser;
+    }
+
+    int getBufferSize(String mode)
     {
         switch (mode.toLowerCase())
         {

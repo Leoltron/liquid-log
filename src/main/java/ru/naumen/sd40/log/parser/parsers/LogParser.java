@@ -1,74 +1,59 @@
 package ru.naumen.sd40.log.parser.parsers;
 
 import ru.naumen.sd40.log.parser.data.DataSet;
-import ru.naumen.sd40.log.parser.util.DateUtils;
-import ru.naumen.sd40.log.parser.util.Pair;
 
-import java.io.Closeable;
 import java.text.ParseException;
 import java.util.function.Function;
 
-public abstract class LogParser<TData> extends SimpleLogParser<Pair<Long, DataSet>> implements Closeable
+public abstract class LogParser<TData> implements ILogParser<Long, DataSet>
 {
-    private IDataConsumer<Pair<Long, DataSet>> dataConsumer;
-
+    private IDataStorage<Long, DataSet> dataConsumer;
     private final IDataParser<TData> dataParser;
-    private final ITimeParser timeParser;
     private final Function<DataSet, TData> selector;
+    private final String[] compatibleModes;
 
-    private Pair<Long, DataSet> currentPair;
 
-    protected LogParser(IDataParser<TData> dataParser, ITimeParser timeParser, Function<DataSet, TData> selector)
+    protected LogParser(IDataParser<TData> dataParser, Function<DataSet, TData> selector, String... compatibleModes)
     {
         this.dataParser = dataParser;
-        this.timeParser = timeParser;
         this.selector = selector;
+        this.compatibleModes = compatibleModes;
     }
 
     @Override
-    public void parseLine(String line) throws ParseException
+    public void parseLine(String line, ITimeParser timeParser) throws ParseException
     {
+        if (dataConsumer == null)
+        {
+            throw new NullPointerException();
+        }
+        long lastParsedTime = timeParser.getLastParsedTime();
         final long time = timeParser.parseTime(line);
-        if (time == 0)
+        if (time <= 0)
         {
             return;
         }
-        final long roundedTime = DateUtils.roundTo5Minutes(time);
+        DataSet dataSet = dataConsumer.getData(time);
 
-        if (currentPair == null)
+        if (lastParsedTime > 0 && lastParsedTime != time)
         {
-            currentPair = new Pair<>(roundedTime, new DataSet());
-        }
-        else if (roundedTime != currentPair.item1)
-        {
-            if (dataConsumer != null)
-            {
-                dataConsumer.consume(currentPair);
-            }
-            currentPair = new Pair<>(roundedTime, new DataSet());
+            dataConsumer.onDataChunkFinished(lastParsedTime);
         }
 
-        dataParser.parseLine(line, selector.apply(currentPair.item2));
+        dataParser.parseLine(line, selector.apply(dataSet));
     }
 
     @Override
-    public void setDataConsumer(IDataConsumer<Pair<Long, DataSet>> dataConsumer)
+    public void setDataStorage(IDataStorage<Long, DataSet> dataConsumer)
     {
         this.dataConsumer = dataConsumer;
     }
 
     @Override
-    public void configureTimeZone(String zoneId)
+    public String[] getCompatibleModes()
     {
-        timeParser.setTimeZone(zoneId);
-    }
-
-    @Override
-    public void close()
-    {
-        if (currentPair != null && dataConsumer != null)
-        {
-            dataConsumer.consume(currentPair);
-        }
+        String[] compatibleModesCopy = new String[compatibleModes.length];
+        System.arraycopy(compatibleModes, 0, compatibleModesCopy, 0, compatibleModes.length);
+        return compatibleModesCopy;
     }
 }

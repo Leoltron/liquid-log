@@ -20,7 +20,7 @@ public class TopTimeParser extends AbstractTimeParser
     }
 
     @Override
-    public long parseTime(String line) throws ParseException
+    public long parseTimeInner(String line) throws ParseException
     {
         Matcher timeMatcher = TIME_REGEX.matcher(line);
         if (timeMatcher.find())
