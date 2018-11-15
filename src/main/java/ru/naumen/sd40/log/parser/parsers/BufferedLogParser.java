@@ -15,12 +15,12 @@ public class BufferedLogParser<TKey, TData>
         this.bufferedReader = bufferedReader;
     }
 
-    public void parse(ITimeParser timeParser) throws IOException, ParseException
+    public void parse(ITimeParser timeParser, IDataStorage<TKey, TData> dataStorage) throws IOException, ParseException
     {
         String line;
         while ((line = bufferedReader.readLine()) != null)
         {
-            logParser.parseLine(line, timeParser);
+            logParser.parseLine(line, timeParser, dataStorage);
         }
     }
 }

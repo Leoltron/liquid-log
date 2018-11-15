@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import ru.naumen.sd40.log.parser.parsers.AbstractTimeParserBuilder;
 import ru.naumen.sd40.log.parser.parsers.ITimeParser;
+import ru.naumen.sd40.log.parser.parsers.ParseModeNames;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,6 +41,6 @@ public class TopTimeParserBuilder extends AbstractTimeParserBuilder
     @Override
     public String[] getCompatibleModes()
     {
-        return new String[]{"top"};
+        return new String[]{ParseModeNames.GC};
     }
 }

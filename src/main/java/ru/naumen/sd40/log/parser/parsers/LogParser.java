@@ -7,7 +7,6 @@ import java.util.function.Function;
 
 public abstract class LogParser<TData> implements ILogParser<Long, DataSet>
 {
-    private IDataStorage<Long, DataSet> dataConsumer;
     private final IDataParser<TData> dataParser;
     private final Function<DataSet, TData> selector;
     private final String[] compatibleModes;
@@ -21,32 +20,22 @@ public abstract class LogParser<TData> implements ILogParser<Long, DataSet>
     }
 
     @Override
-    public void parseLine(String line, ITimeParser timeParser) throws ParseException
+    public void parseLine(String line, ITimeParser timeParser, IDataStorage<Long, DataSet> dataStorage) throws ParseException
     {
-        if (dataConsumer == null)
-        {
-            throw new NullPointerException();
-        }
         long lastParsedTime = timeParser.getLastParsedTime();
         final long time = timeParser.parseTime(line);
         if (time <= 0)
         {
             return;
         }
-        DataSet dataSet = dataConsumer.getData(time);
+        DataSet dataSet = dataStorage.getData(time);
 
         if (lastParsedTime > 0 && lastParsedTime != time)
         {
-            dataConsumer.onDataChunkFinished(lastParsedTime);
+            dataStorage.onDataChunkFinished(lastParsedTime);
         }
 
         dataParser.parseLine(line, selector.apply(dataSet));
-    }
-
-    @Override
-    public void setDataStorage(IDataStorage<Long, DataSet> dataConsumer)
-    {
-        this.dataConsumer = dataConsumer;
     }
 
     @Override

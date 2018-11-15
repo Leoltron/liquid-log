@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import ru.naumen.sd40.log.parser.parsers.AbstractTimeParserBuilder;
 import ru.naumen.sd40.log.parser.parsers.ITimeParser;
+import ru.naumen.sd40.log.parser.parsers.ParseModeNames;
 
 @Component
 @Scope("prototype")
@@ -20,6 +21,6 @@ public class SdngTimeParserBuilder extends AbstractTimeParserBuilder
     @Override
     public String[] getCompatibleModes()
     {
-        return new String[]{"cdng"};
+        return new String[]{ParseModeNames.SDNG};
     }
 }

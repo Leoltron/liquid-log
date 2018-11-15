@@ -44,12 +44,11 @@ public class UniversalLogParser
 
         ITimeParser timeParser = timeParserBuilder.build();
 
-        try (final LogDataWriter writer = new LogDataWriter(influxDAO, influxDbName, printOutput))
+        try (final InfluxDAOStorage writer = new InfluxDAOStorage(influxDAO, influxDbName, printOutput))
         {
-            logParser.setDataStorage(writer);
             try (BufferedReader br = brBuilder.size(parseModes.getBufferSize(mode)).build())
             {
-                new BufferedLogParser<>(logParser, br).parse(timeParser);
+                new BufferedLogParser<>(logParser, br).parse(timeParser, writer);
             }
             writer.onDataChunkFinished(timeParser.getLastParsedTime());
         }

@@ -8,7 +8,7 @@ import ru.naumen.sd40.log.parser.parsers.IDataStorage;
 import java.io.Closeable;
 import java.util.HashMap;
 
-public class LogDataWriter implements IDataStorage<Long, DataSet>, Closeable
+public class InfluxDAOStorage implements IDataStorage<Long, DataSet>, Closeable
 {
     private final InfluxDAO influxDAO;
     private final BatchPoints batchPoints;
@@ -17,12 +17,12 @@ public class LogDataWriter implements IDataStorage<Long, DataSet>, Closeable
 
     private final HashMap<Long, DataSet> processingDataSets = new HashMap<>();
 
-    public LogDataWriter(InfluxDAO influxDAO, String dbName)
+    public InfluxDAOStorage(InfluxDAO influxDAO, String dbName)
     {
         this(influxDAO, dbName, System.getProperty("NoCsv") != null);
     }
 
-    public LogDataWriter(InfluxDAO influxDAO, String dbName, boolean printCsvData)
+    public InfluxDAOStorage(InfluxDAO influxDAO, String dbName, boolean printCsvData)
     {
         this.printCsvData = printCsvData;
 
@@ -45,7 +45,7 @@ public class LogDataWriter implements IDataStorage<Long, DataSet>, Closeable
     }
 
     @Override
-    public synchronized void onDataChunkFinished(Long time)
+    public void onDataChunkFinished(Long time)
     {
         DataSet dataSet = getData(time);
 

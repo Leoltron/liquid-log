@@ -18,18 +18,18 @@ public class LogParserTests
     private LogParser<Long> parser;
     private ITimeParser timeParser;
     private IDataParser<Long> dataParser;
-    private IDataStorage<Long, DataSet> consumer;
+    private IDataStorage<Long, DataSet> dataStorage;
 
     @Before
     public void setUp()
     {
         dataParser = mock(IDataParser.class);
         timeParser = mock(ITimeParser.class);
+        dataStorage = mock(IDataStorage.class);
 
         parser = new LogParser<Long>(dataParser, d -> 0L)
         {
         };
-        parser.setDataStorage(consumer = mock(IDataStorage.class));
     }
 
     @Test
@@ -44,10 +44,10 @@ public class LogParserTests
         when(timeParser.parseTime(stringWithTime3)).thenReturn(911111L);
         when(timeParser.getLastParsedTime()).thenReturn(0L, 331256L, 600000L, 911111L);
 
-        parser.parseLine(stringWithTime1, timeParser);
-        parser.parseLine(stringWithTime2, timeParser);
-        parser.parseLine(stringWithTime3, timeParser);
+        parser.parseLine(stringWithTime1, timeParser, dataStorage);
+        parser.parseLine(stringWithTime2, timeParser, dataStorage);
+        parser.parseLine(stringWithTime3, timeParser, dataStorage);
 
-        verify(consumer, times(2)).onDataChunkFinished(any());
+        verify(dataStorage, times(2)).onDataChunkFinished(any());
     }
 }

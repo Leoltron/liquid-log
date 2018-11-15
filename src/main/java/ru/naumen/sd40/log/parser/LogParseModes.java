@@ -1,5 +1,7 @@
 package ru.naumen.sd40.log.parser;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
 import ru.naumen.sd40.log.parser.data.DataSet;
 import ru.naumen.sd40.log.parser.parsers.AbstractTimeParserBuilder;
@@ -12,6 +14,7 @@ import java.util.List;
 @Component
 public class LogParseModes
 {
+    private final ApplicationContext ctx = new AnnotationConfigApplicationContext();
     private final HashMap<String, ILogParser<Long, DataSet>> logParsers = new HashMap<>();
     private final HashMap<String, AbstractTimeParserBuilder> timeParsers = new HashMap<>();
 
@@ -54,7 +57,7 @@ public class LogParseModes
                             " Requested mode: " + mode);
         }
 
-        return timeParser;
+        return ctx.getBean(timeParser.getClass());
     }
 
     int getBufferSize(String mode)
