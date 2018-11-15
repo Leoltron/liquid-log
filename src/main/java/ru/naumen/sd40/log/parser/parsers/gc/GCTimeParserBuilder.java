@@ -6,6 +6,9 @@ import ru.naumen.sd40.log.parser.parsers.AbstractTimeParserBuilder;
 import ru.naumen.sd40.log.parser.parsers.ITimeParser;
 import ru.naumen.sd40.log.parser.parsers.ParseModeNames;
 
+import java.util.Collections;
+import java.util.List;
+
 @Component
 @Scope("prototype")
 public class GCTimeParserBuilder extends AbstractTimeParserBuilder
@@ -19,8 +22,8 @@ public class GCTimeParserBuilder extends AbstractTimeParserBuilder
     }
 
     @Override
-    public String[] getCompatibleModes()
+    public List<String> getCompatibleModes()
     {
-        return new String[]{ParseModeNames.GC};
+        return Collections.singletonList(ParseModeNames.GC);
     }
 }

@@ -7,6 +7,8 @@ import ru.naumen.sd40.log.parser.data.TopData;
 import ru.naumen.sd40.log.parser.parsers.*;
 
 import java.text.ParseException;
+import java.util.Collections;
+import java.util.List;
 
 @Component
 public class TopParser implements ILogParser<Long, DataSet>
@@ -37,8 +39,8 @@ public class TopParser implements ILogParser<Long, DataSet>
     }
 
     @Override
-    public String[] getCompatibleModes()
+    public List<String> getCompatibleModes()
     {
-        return new String[]{ParseModeNames.TOP};
+        return Collections.singletonList(ParseModeNames.TOP);
     }
 }

@@ -6,6 +6,8 @@ import ru.naumen.sd40.log.parser.parsers.AbstractTimeParserBuilder;
 import ru.naumen.sd40.log.parser.parsers.ITimeParser;
 import ru.naumen.sd40.log.parser.parsers.ParseModeNames;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,8 +41,8 @@ public class TopTimeParserBuilder extends AbstractTimeParserBuilder
     }
 
     @Override
-    public String[] getCompatibleModes()
+    public List<String> getCompatibleModes()
     {
-        return new String[]{ParseModeNames.GC};
+        return Collections.singletonList(ParseModeNames.GC);
     }
 }

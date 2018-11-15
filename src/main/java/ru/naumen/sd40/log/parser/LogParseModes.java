@@ -7,7 +7,6 @@ import ru.naumen.sd40.log.parser.data.DataSet;
 import ru.naumen.sd40.log.parser.parsers.AbstractTimeParserBuilder;
 import ru.naumen.sd40.log.parser.parsers.ILogParser;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -22,13 +21,13 @@ public class LogParseModes
     {
         for (ILogParser<Long, DataSet> logParser : logParsers)
         {
-            Arrays.stream(logParser.getCompatibleModes())
+            logParser.getCompatibleModes()
                     .forEach(mode -> this.logParsers.put(mode.toLowerCase(), logParser));
         }
 
         for (AbstractTimeParserBuilder timeParserBuilder : timeParserBuilders)
         {
-            Arrays.stream(timeParserBuilder.getCompatibleModes())
+            timeParserBuilder.getCompatibleModes()
                     .forEach(mode -> this.timeParsers.put(mode.toLowerCase(), timeParserBuilder));
         }
     }
