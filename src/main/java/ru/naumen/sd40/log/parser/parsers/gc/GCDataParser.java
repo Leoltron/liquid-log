@@ -1,11 +1,13 @@
 package ru.naumen.sd40.log.parser.parsers.gc;
 
+import org.springframework.stereotype.Component;
 import ru.naumen.sd40.log.parser.data.GCData;
 import ru.naumen.sd40.log.parser.parsers.IDataParser;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Component
 public class GCDataParser implements IDataParser<GCData>
 {
     private static final Pattern GC_EXECUTION_TIME = Pattern.compile(".*real=(.*)secs.*");

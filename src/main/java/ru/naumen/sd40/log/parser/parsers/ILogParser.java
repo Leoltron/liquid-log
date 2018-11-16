@@ -2,11 +2,8 @@ package ru.naumen.sd40.log.parser.parsers;
 
 import java.text.ParseException;
 
-public interface ILogParser<Data>
+public interface ILogParser<TKey, TData> extends IModeCompatible
 {
-    void parseLine(String line) throws ParseException;
+    void parseLine(String line, ITimeParser timeParser, IDataStorage<TKey, TData> dataStorage) throws ParseException;
 
-    void setDataConsumer(IDataConsumer<Data> dataConsumer);
-
-    void configureTimeZone(String zoneId);
 }

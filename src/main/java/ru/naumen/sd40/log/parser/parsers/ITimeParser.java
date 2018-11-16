@@ -10,4 +10,6 @@ public interface ITimeParser
     long parseTime(String line) throws ParseException;
 
     void setTimeZone(String zoneId);
+
+    long getLastParsedTime();
 }

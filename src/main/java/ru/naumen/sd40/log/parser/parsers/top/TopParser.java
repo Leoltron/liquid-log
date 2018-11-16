@@ -1,65 +1,46 @@
 package ru.naumen.sd40.log.parser.parsers.top;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ru.naumen.sd40.log.parser.data.DataSet;
 import ru.naumen.sd40.log.parser.data.TopData;
-import ru.naumen.sd40.log.parser.parsers.IDataConsumer;
-import ru.naumen.sd40.log.parser.parsers.IDataParser;
-import ru.naumen.sd40.log.parser.parsers.ILogParser;
-import ru.naumen.sd40.log.parser.parsers.ITimeParser;
-import ru.naumen.sd40.log.parser.util.Pair;
+import ru.naumen.sd40.log.parser.parsers.*;
 
 import java.text.ParseException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Collections;
+import java.util.List;
 
-public class TopParser implements ILogParser<Pair<Long, DataSet>>
+@Component
+public class TopParser implements ILogParser<Long, DataSet>
 {
-    private static final Pattern DATE_TIME_PATTERN = Pattern.compile("\\d{8}|\\d{4}-\\d{2}-\\d{2}");
+    private final IDataParser<TopData> dataParser;
 
-    private final IDataParser<TopData> dataParser = new TopDataParser();
-    private final ITimeParser timeParser;
-
-    private IDataConsumer<Pair<Long, DataSet>> dataConsumer;
-    private Pair<Long, DataSet> currentPair;
-
-    public TopParser(String logFileName)
+    @Autowired
+    public TopParser(IDataParser<TopData> dataParser)
     {
-        Matcher matcher = DATE_TIME_PATTERN.matcher(logFileName);
-        if (!matcher.find())
-        {
-            throw new IllegalArgumentException();
-        }
-        String dataDate = matcher.group(0).replaceAll("-", "");
-        timeParser = new TopTimeParser(dataDate);
+        this.dataParser = dataParser;
     }
 
     @Override
-    public void parseLine(String line) throws ParseException
+    public void parseLine(String line, ITimeParser timeParser, IDataStorage<Long, DataSet> dataStorage) throws ParseException
     {
+        long prevTime = timeParser.getLastParsedTime();
         long time = timeParser.parseTime(line);
         if (time != 0)
         {
-            if (currentPair != null && dataConsumer != null)
+            if (prevTime > 0)
             {
-                dataConsumer.consume(currentPair);
+                dataStorage.onDataChunkFinished(prevTime);
             }
-            currentPair = new Pair<>(time, new DataSet());
-        }
-        else
+        } else if (prevTime > 0)
         {
-            dataParser.parseLine(line, currentPair.item2.cpuData());
+            dataParser.parseLine(line, dataStorage.getData(prevTime).cpuData());
         }
     }
 
     @Override
-    public void setDataConsumer(IDataConsumer<Pair<Long, DataSet>> dataConsumer)
+    public List<String> getCompatibleModes()
     {
-        this.dataConsumer = dataConsumer;
-    }
-
-    @Override
-    public void configureTimeZone(String zoneId)
-    {
-        timeParser.setTimeZone(zoneId);
+        return Collections.singletonList(ParseModeNames.TOP);
     }
 }

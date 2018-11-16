@@ -4,23 +4,23 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.text.ParseException;
 
-public class BufferedLogParser<TResultData>
+public class BufferedLogParser<TKey, TData>
 {
-    private final ILogParser<TResultData> logParser;
+    private final ILogParser<TKey, TData> logParser;
     private final BufferedReader bufferedReader;
 
-    public BufferedLogParser(ILogParser<TResultData> logParser, BufferedReader bufferedReader)
+    public BufferedLogParser(ILogParser<TKey, TData> logParser, BufferedReader bufferedReader)
     {
         this.logParser = logParser;
         this.bufferedReader = bufferedReader;
     }
 
-    public void parse() throws IOException, ParseException
+    public void parse(ITimeParser timeParser, IDataStorage<TKey, TData> dataStorage) throws IOException, ParseException
     {
         String line;
         while ((line = bufferedReader.readLine()) != null)
         {
-            logParser.parseLine(line);
+            logParser.parseLine(line, timeParser, dataStorage);
         }
     }
 }

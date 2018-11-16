@@ -6,7 +6,8 @@ import org.junit.Test;
 import ru.naumen.sd40.log.parser.data.ActionDoneData;
 import ru.naumen.sd40.log.parser.parsers.sdng.ActionDoneDataParser;
 
-public class ActionDoneParserTest {
+public class ActionDoneParserTests
+{
 
     private ActionDoneDataParser parser;
     private ActionDoneData data;

@@ -9,7 +9,6 @@ import java.util.regex.Pattern;
 
 public class TopTimeParser extends AbstractTimeParser
 {
-
     private static final Pattern TIME_REGEX = Pattern.compile("^_+ (\\S+)");
 
     private final String dataDate;
@@ -21,7 +20,7 @@ public class TopTimeParser extends AbstractTimeParser
     }
 
     @Override
-    public long parseTime(String line) throws ParseException
+    public long parseTimeInner(String line) throws ParseException
     {
         Matcher timeMatcher = TIME_REGEX.matcher(line);
         if (timeMatcher.find())

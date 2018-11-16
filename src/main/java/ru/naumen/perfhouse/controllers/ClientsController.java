@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import ru.naumen.perfhouse.influx.InfluxDAO;
-import ru.naumen.sd40.log.parser.ParseMode;
 import ru.naumen.sd40.log.parser.UniversalLogParser;
 import ru.naumen.sd40.log.parser.util.BufferedReaderBuilder;
 
@@ -37,10 +36,10 @@ public class ClientsController
     private final UniversalLogParser logParser;
 
     @Inject
-    public ClientsController(InfluxDAO influxDAO)
+    public ClientsController(InfluxDAO influxDAO, UniversalLogParser logParser)
     {
         this.influxDAO = influxDAO;
-        this.logParser = new UniversalLogParser(influxDAO);
+        this.logParser = logParser;
     }
 
     @RequestMapping(path = "/")
@@ -111,10 +110,8 @@ public class ClientsController
 
         try
         {
-            ParseMode mode = ParseMode.valueOf(type.toUpperCase());
             BufferedReaderBuilder builder = new BufferedReaderBuilder(new InputStreamReader(file.getInputStream()));
-
-            logParser.parseAndUploadLogs(mode, file.getOriginalFilename(), builder, dbName, timeZone, printOutput);
+            logParser.parseAndUploadLogs(type, file.getOriginalFilename(), builder, dbName, timeZone, printOutput);
         } catch (Exception e)
         {
             LOG.error("An error occurred during input log parse:", e);

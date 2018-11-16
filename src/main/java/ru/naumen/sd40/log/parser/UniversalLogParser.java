@@ -1,11 +1,13 @@
 package ru.naumen.sd40.log.parser;
 
+import org.springframework.stereotype.Component;
 import ru.naumen.perfhouse.influx.InfluxDAO;
 import ru.naumen.sd40.log.parser.data.DataSet;
+import ru.naumen.sd40.log.parser.parsers.AbstractTimeParserBuilder;
 import ru.naumen.sd40.log.parser.parsers.BufferedLogParser;
 import ru.naumen.sd40.log.parser.parsers.ILogParser;
+import ru.naumen.sd40.log.parser.parsers.ITimeParser;
 import ru.naumen.sd40.log.parser.util.BufferedReaderBuilder;
-import ru.naumen.sd40.log.parser.util.Pair;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,16 +16,19 @@ import java.text.ParseException;
 /**
  * Created by doki on 22.10.16.
  */
+@Component
 public class UniversalLogParser
 {
     private final InfluxDAO influxDAO;
+    private final LogParseModes parseModes;
 
-    public UniversalLogParser(InfluxDAO influxDAO)
+    public UniversalLogParser(InfluxDAO influxDAO, LogParseModes parseModes)
     {
         this.influxDAO = influxDAO;
+        this.parseModes = parseModes;
     }
 
-    public void parseAndUploadLogs(ParseMode mode,
+    public void parseAndUploadLogs(String mode,
                                    String logFilePath,
                                    BufferedReaderBuilder brBuilder,
                                    String influxDbName,
@@ -31,16 +36,21 @@ public class UniversalLogParser
                                    boolean printOutput)
             throws IOException, ParseException
     {
-        ILogParser<Pair<Long, DataSet>> logParser = mode.getLogParser(logFilePath);
-        logParser.configureTimeZone(timeZone);
+        ILogParser<Long, DataSet> logParser = parseModes.getLogParser(mode);
+        AbstractTimeParserBuilder timeParserBuilder = parseModes.getTimeParserBuilder(mode);
 
-        try (final LogDataWriter writer = new LogDataWriter(influxDAO, influxDbName, printOutput))
+        timeParserBuilder.setLogFileName(logFilePath);
+        timeParserBuilder.setTimeZone(timeZone);
+
+        ITimeParser timeParser = timeParserBuilder.build();
+
+        try (final InfluxDAOStorage writer = new InfluxDAOStorage(influxDAO, influxDbName, printOutput))
         {
-            logParser.setDataConsumer(writer);
-            try (BufferedReader br = brBuilder.size(mode.bufferSize).build())
+            try (BufferedReader br = brBuilder.size(parseModes.getBufferSize(mode)).build())
             {
-                new BufferedLogParser<>(logParser, br).parse();
+                new BufferedLogParser<>(logParser, br).parse(timeParser, writer);
             }
+            writer.onDataChunkFinished(timeParser.getLastParsedTime());
         }
     }
 }

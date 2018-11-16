@@ -19,7 +19,7 @@ public final class GCTimeParser extends AbstractTimeParser
         super(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", new Locale("ru", "RU")));
     }
 
-    public long parseTime(String line) throws ParseException
+    public long parseTimeInner(String line) throws ParseException
     {
         Matcher matcher = PATTERN.matcher(line);
         if (matcher.find())
