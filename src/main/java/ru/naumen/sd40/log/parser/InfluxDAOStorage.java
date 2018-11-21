@@ -1,29 +1,38 @@
 package ru.naumen.sd40.log.parser;
 
 import org.influxdb.dto.BatchPoints;
+import org.influxdb.dto.Point;
 import ru.naumen.perfhouse.influx.InfluxDAO;
-import ru.naumen.sd40.log.parser.data.*;
+import ru.naumen.perfhouse.statdata.Constants;
+import ru.naumen.sd40.log.parser.data.IDataSet;
+import ru.naumen.sd40.log.parser.data.builder.IDataBuilder;
+import ru.naumen.sd40.log.parser.data.writer.IDataWriter;
 import ru.naumen.sd40.log.parser.parsers.IDataStorage;
 
 import java.io.Closeable;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
-public class InfluxDAOStorage implements IDataStorage<Long, DataSet>, Closeable
+public class InfluxDAOStorage<TData extends IDataSet> implements IDataStorage<TData>, Closeable
 {
+    private final IDataBuilder<TData> dataBuilder;
+    private final IDataWriter<TData> dataWriter;
     private final InfluxDAO influxDAO;
     private final BatchPoints batchPoints;
     private final boolean printCsvData;
     private final String dbName;
 
-    private final HashMap<Long, DataSet> processingDataSets = new HashMap<>();
+    private final HashMap<Long, TData> processingDataSets = new HashMap<>();
 
-    public InfluxDAOStorage(InfluxDAO influxDAO, String dbName)
+    public InfluxDAOStorage(IDataBuilder<TData> dataBuilder, IDataWriter<TData> dataWriter, InfluxDAO influxDAO, String dbName)
     {
-        this(influxDAO, dbName, System.getProperty("NoCsv") != null);
+        this(dataBuilder, dataWriter, influxDAO, dbName, System.getProperty("NoCsv") != null);
     }
 
-    public InfluxDAOStorage(InfluxDAO influxDAO, String dbName, boolean printCsvData)
+    public InfluxDAOStorage(IDataBuilder<TData> dataBuilder, IDataWriter<TData> dataWriter, InfluxDAO influxDAO, String dbName, boolean printCsvData)
     {
+        this.dataBuilder = dataBuilder;
+        this.dataWriter = dataWriter;
         this.printCsvData = printCsvData;
 
         if (dbName == null)
@@ -45,35 +54,12 @@ public class InfluxDAOStorage implements IDataStorage<Long, DataSet>, Closeable
     }
 
     @Override
-    public void onDataChunkFinished(Long time)
+    public void onDataChunkFinished(long time)
     {
-        DataSet dataSet = getData(time);
-
-        ActionDoneData adData = dataSet.getActionsDone();
-        adData.calculate();
-        ErrorData errorData = dataSet.getErrorData();
-        if (printCsvData)
-        {
-            System.out.print(String.format("%d;%d;%f;%f;%f;%f;%f;%f;%f;%f;%d\n", time, adData.getCount(),
-                    adData.getMin(), adData.getMean(), adData.getStddev(), adData.getPercent50(), adData.getPercent95(),
-                    adData.getPercent99(), adData.getPercent999(), adData.getMax(), errorData.getErrorCount()));
-        }
-        if (!adData.isNan())
-        {
-            influxDAO.storeActionsFromLog(batchPoints, dbName, time, adData, errorData);
-        }
-
-        GCData gc = dataSet.getGcData();
-        if (!gc.isNan())
-        {
-            influxDAO.storeGc(batchPoints, dbName, time, gc);
-        }
-
-        TopData cpuData = dataSet.cpuData();
-        if (!cpuData.isNan())
-        {
-            influxDAO.storeTop(batchPoints, dbName, time, cpuData);
-        }
+        TData dataSet = getData(time);
+        Point.Builder builder = Point.measurement(Constants.MEASUREMENT_NAME).time(time, TimeUnit.MILLISECONDS);
+        dataWriter.writeFields(builder, time,dataSet, printCsvData);
+        influxDAO.store(batchPoints, dbName, builder.build());
     }
 
     @Override
@@ -83,11 +69,11 @@ public class InfluxDAOStorage implements IDataStorage<Long, DataSet>, Closeable
     }
 
     @Override
-    public DataSet getData(Long timeMillis)
+    public TData getData(long timeMillis)
     {
         if (!this.processingDataSets.containsKey(timeMillis))
         {
-            processingDataSets.put(timeMillis, new DataSet());
+            processingDataSets.put(timeMillis, dataBuilder.createNew());
         }
         return processingDataSets.get(timeMillis);
     }

@@ -1,25 +1,26 @@
 package ru.naumen.sd40.log.parser;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import com.sun.javafx.UnmodifiableArrayList;
 import org.springframework.stereotype.Component;
-import ru.naumen.sd40.log.parser.data.DataSet;
 import ru.naumen.sd40.log.parser.parsers.AbstractTimeParserBuilder;
 import ru.naumen.sd40.log.parser.parsers.ILogParser;
+import ru.naumen.sd40.log.parser.parsers.ParseModeNames;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class LogParseModes
 {
-    private final ApplicationContext ctx = new AnnotationConfigApplicationContext();
-    private final HashMap<String, ILogParser<Long, DataSet>> logParsers = new HashMap<>();
+    private final HashMap<String, ILogParser> logParsers = new HashMap<>();
     private final HashMap<String, AbstractTimeParserBuilder> timeParsers = new HashMap<>();
+    private final List<String> workingModes;
 
-    public LogParseModes(List<ILogParser<Long, DataSet>> logParsers, List<AbstractTimeParserBuilder> timeParserBuilders)
+    public LogParseModes(List<ILogParser> logParsers, List<AbstractTimeParserBuilder> timeParserBuilders)
     {
-        for (ILogParser<Long, DataSet> logParser : logParsers)
+        for (ILogParser logParser : logParsers)
         {
             logParser.getCompatibleModes()
                     .forEach(mode -> this.logParsers.put(mode.toLowerCase(), logParser));
@@ -30,16 +31,21 @@ public class LogParseModes
             timeParserBuilder.getCompatibleModes()
                     .forEach(mode -> this.timeParsers.put(mode.toLowerCase(), timeParserBuilder));
         }
+
+        Set<String> availableLogParseModes = new HashSet<>(this.logParsers.keySet());
+        availableLogParseModes.retainAll(this.timeParsers.keySet());
+
+        workingModes = new UnmodifiableArrayList<>(availableLogParseModes.toArray(new String[0]), availableLogParseModes.size());
     }
 
-    ILogParser<Long, DataSet> getLogParser(String mode)
+    ILogParser getLogParser(String mode)
     {
-        ILogParser<Long, DataSet> logParser = logParsers.getOrDefault(mode.toLowerCase(), null);
+        ILogParser logParser = logParsers.getOrDefault(mode.toLowerCase(), null);
         if (logParser == null)
         {
             throw new IllegalArgumentException(
-                    "Unknown parse mode! Available modes: " + String.join(",", logParsers.keySet()) + "." +
-                            " Requested mode: " + mode);
+                    String.format("Unknown parse mode! Available modes: %s. Requested mode: %s",
+                            String.join(",", logParsers.keySet()), mode));
         }
 
         return logParser;
@@ -47,26 +53,30 @@ public class LogParseModes
 
     AbstractTimeParserBuilder getTimeParserBuilder(String mode)
     {
-        AbstractTimeParserBuilder timeParser = timeParsers.getOrDefault(mode.toLowerCase(), null);
-        if (timeParser == null)
+        AbstractTimeParserBuilder timeParserBuilder = timeParsers.getOrDefault(mode.toLowerCase(), null);
+        if (timeParserBuilder == null)
         {
-
             throw new IllegalArgumentException(
-                    "Unknown parse mode! Available modes: " + String.join(",", timeParsers.keySet()) + "." +
-                            " Requested mode: " + mode);
+                    String.format("Unknown parse mode! Available modes: %s. Requested mode: %s",
+                            String.join(",", timeParsers.keySet()), mode));
         }
 
-        return ctx.getBean(timeParser.getClass());
+        return timeParserBuilder;
     }
 
     int getBufferSize(String mode)
     {
         switch (mode.toLowerCase())
         {
-            case "sdng":
+            case ParseModeNames.SDNG:
                 return 32 * 1024 * 1024;
             default:
                 return 8 * 1024;
         }
+    }
+
+    public List<String> getWorkingParseModes()
+    {
+        return workingModes;
     }
 }

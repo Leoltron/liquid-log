@@ -5,7 +5,7 @@ import ru.naumen.sd40.log.parser.counter.RegexFindCounter;
 
 import java.util.regex.Pattern;
 
-public final class ErrorData
+public final class ErrorData implements IDataSet
 {
     private static final Pattern WARN_REG_EX = Pattern.compile("^\\d+ \\[.+?\\] \\(.+?\\) WARN");
     private static final Pattern ERROR_REG_EX = Pattern.compile("^\\d+ \\[.+?\\] \\(.+?\\) ERROR");

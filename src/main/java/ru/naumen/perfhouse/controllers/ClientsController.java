@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import ru.naumen.perfhouse.influx.InfluxDAO;
+import ru.naumen.sd40.log.parser.LogParseModes;
 import ru.naumen.sd40.log.parser.UniversalLogParser;
 import ru.naumen.sd40.log.parser.util.BufferedReaderBuilder;
 
@@ -34,12 +35,14 @@ public class ClientsController
     private final Logger LOG = LoggerFactory.getLogger(ClientsController.class);
     private final InfluxDAO influxDAO;
     private final UniversalLogParser logParser;
+    private final LogParseModes logParseModes;
 
     @Inject
-    public ClientsController(InfluxDAO influxDAO, UniversalLogParser logParser)
+    public ClientsController(InfluxDAO influxDAO, UniversalLogParser logParser, LogParseModes logParseModes)
     {
         this.influxDAO = influxDAO;
         this.logParser = logParser;
+        this.logParseModes = logParseModes;
     }
 
     @RequestMapping(path = "/")
@@ -51,6 +54,7 @@ public class ClientsController
         HashMap<String, Object> clientMonthLinks = new HashMap<>();
         HashMap<String, Object> clientLast2016Links = new HashMap<>();
         HashMap<String, Object> clientPreviousMonthLinks = new HashMap<>();
+        List<String> modes = logParseModes.getWorkingParseModes();
 
         DateTime now = DateTime.now();
         DateTime prevMonth = now.minusMonths(1);
@@ -70,6 +74,7 @@ public class ClientsController
 
         HashMap<String, Object> model = new HashMap<>();
         model.put("clients", clients);
+        model.put("parseModes", modes);
         model.put("links", clientLinks);
         model.put("monthlinks", clientMonthLinks);
         model.put("last864links", clientLast864Links);

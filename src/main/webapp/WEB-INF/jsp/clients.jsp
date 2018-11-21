@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.Map" %>
+<%@ page import="org.apache.commons.lang3.text.WordUtils" %>
 <%@ page import="java.util.List" %>
+<%@ page import="java.util.Map" %>
 <html>
 
 <head>
@@ -26,18 +27,21 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js"></script>
 <script type="text/javascript">
     	function setupModal(client){
-    		$('#formFrom').val(moment().format("DD/MM/YYYY"))
-    		$('#formTo').val(moment().format("DD/MM/YYYY"))
-    		$('#formTo').datepicker({
-    			format: "dd/mm/yyyy"
-    		})
-    		$('#formFrom').datepicker({
-    			format: "dd/mm/yyyy",
-    		})
+            var formFrom = $('#formFrom');
+            var formTo = $('#formTo');
 
-    		$('#formMaxResults').val(100)
-    		$('#customForm').attr('action','/history/'+client+'/custom')
-    		console.log(moment().format('zz'))
+            formFrom.val(moment().format("DD/MM/YYYY"));
+            formTo.val(moment().format("DD/MM/YYYY"));
+    		formTo.datepicker({
+    			format: "dd/mm/yyyy"
+    		});
+    		formFrom.datepicker({
+    			format: "dd/mm/yyyy"
+    		});
+
+    		$('#formMaxResults').val(100);
+    		$('#customForm').attr('action','/history/'+client+'/custom');
+    		console.log(moment().format('zz'));
     	}
     </script>
 <div class="container">
@@ -81,11 +85,12 @@
     </div>
     <div class="form-group mb-2">
     <select class="form-control" name="type" required>
-            <option value="">Select log type</option>
-            <option value="sdng">SDNG</option>
-    <option value="gc">GC</option>
-            <option value="top">Top</option>
-        </select>
+        <option value="">Select log type</option>
+        <% for (String parseMode :(List<String>)request.getAttribute("parseModes"))
+        { %>
+        <option value="<%= parseMode %>"><%=WordUtils.capitalize(parseMode)%></option>
+        <% } %>
+    </select>
     </div>
     <div class="form-group mb-2">
     <select class="form-control" name="timeZone" required>

@@ -1,8 +1,8 @@
 package ru.naumen.sd40.log.parser.parsers;
 
-public interface IDataStorage<TKey, TData>
+public interface IDataStorage<TData>
 {
-    TData getData(TKey key);
+    TData getData(long date);
 
-    void onDataChunkFinished(TKey relatedKey);
+    void onDataChunkFinished(long relatedDate);
 }

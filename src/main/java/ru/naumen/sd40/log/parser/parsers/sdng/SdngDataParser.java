@@ -3,11 +3,11 @@ package ru.naumen.sd40.log.parser.parsers.sdng;
 import org.springframework.stereotype.Component;
 import ru.naumen.sd40.log.parser.data.ActionDoneData;
 import ru.naumen.sd40.log.parser.data.ErrorData;
+import ru.naumen.sd40.log.parser.data.SdngData;
 import ru.naumen.sd40.log.parser.parsers.IDataParser;
-import ru.naumen.sd40.log.parser.util.Pair;
 
 @Component
-public class SdngDataParser implements IDataParser<Pair<ActionDoneData, ErrorData>>
+public class SdngDataParser implements IDataParser<SdngData>
 {
     private final IDataParser<ActionDoneData> actionDataParser;
     private final IDataParser<ErrorData> errorDataParser;
@@ -19,9 +19,9 @@ public class SdngDataParser implements IDataParser<Pair<ActionDoneData, ErrorDat
     }
 
     @Override
-    public void parseLine(String line, Pair<ActionDoneData, ErrorData> containers)
+    public void parseLine(String line, SdngData sdngData)
     {
-        actionDataParser.parseLine(line, containers.item1);
-        errorDataParser.parseLine(line, containers.item2);
+        actionDataParser.parseLine(line, sdngData.getActionDoneData());
+        errorDataParser.parseLine(line, sdngData.getErrorData());
     }
 }

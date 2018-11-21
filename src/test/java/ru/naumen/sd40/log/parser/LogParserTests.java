@@ -2,7 +2,9 @@ package ru.naumen.sd40.log.parser;
 
 import org.junit.Before;
 import org.junit.Test;
-import ru.naumen.sd40.log.parser.data.DataSet;
+import ru.naumen.sd40.log.parser.data.IDataSet;
+import ru.naumen.sd40.log.parser.data.builder.IDataBuilder;
+import ru.naumen.sd40.log.parser.data.writer.IDataWriter;
 import ru.naumen.sd40.log.parser.parsers.IDataParser;
 import ru.naumen.sd40.log.parser.parsers.IDataStorage;
 import ru.naumen.sd40.log.parser.parsers.ITimeParser;
@@ -14,20 +16,37 @@ import static org.mockito.Mockito.*;
 
 public class LogParserTests
 {
+    private static class DataSet implements IDataSet
+    {
 
-    private LogParser<Long> parser;
+    }
+
+    private static class DataSetBuilder implements IDataBuilder<DataSet>{
+
+        @Override
+        public DataSet createNew()
+        {
+            return new DataSet();
+        }
+    }
+
+    private LogParser<DataSet> parser;
     private ITimeParser timeParser;
-    private IDataParser<Long> dataParser;
-    private IDataStorage<Long, DataSet> dataStorage;
+    private IDataParser<DataSet> dataParser;
+    private IDataBuilder<DataSet> dataBuilder;
+    private IDataWriter<DataSet> dataWriter;
+    private IDataStorage<DataSet> dataStorage;
 
     @Before
     public void setUp()
     {
         dataParser = mock(IDataParser.class);
+        dataBuilder = new DataSetBuilder();
+        dataWriter = mock(IDataWriter.class);
         timeParser = mock(ITimeParser.class);
         dataStorage = mock(IDataStorage.class);
 
-        parser = new LogParser<Long>(dataParser, d -> 0L)
+        parser = new LogParser<DataSet>(dataParser, dataBuilder, dataWriter)
         {
         };
     }

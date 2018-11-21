@@ -34,11 +34,8 @@ import static ru.naumen.perfhouse.statdata.Constants.Top.*;
 public class InfluxDAO
 {
     private String influxHost;
-
     private String user;
-
     private String password;
-
     private InfluxDB influx;
 
     @Autowired
@@ -181,6 +178,17 @@ public class InfluxDAO
                 .addField(AVG_LA, data.getAvgLa()).addField(AVG_CPU, data.getAvgCpuUsage())
                 .addField(AVG_MEM, data.getAvgMemUsage()).addField(MAX_LA, data.getMaxLa())
                 .addField(MAX_CPU, data.getMaxCpu()).addField(MAX_MEM, data.getMaxMem()).build();
+        if (batch != null)
+        {
+            batch.getPoints().add(point);
+        }
+        else
+        {
+            influx.write(dbName, "autogen", point);
+        }
+    }
+
+    public void store(BatchPoints batch, String dbName, Point point){
         if (batch != null)
         {
             batch.getPoints().add(point);
