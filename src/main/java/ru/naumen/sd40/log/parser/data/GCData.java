@@ -5,7 +5,7 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import static ru.naumen.sd40.log.parser.util.NumberUtils.getSafeDouble;
 import static ru.naumen.sd40.log.parser.util.NumberUtils.roundToTwoPlaces;
 
-public final class GCData
+public final class GCData implements IDataSet
 {
     private DescriptiveStatistics ds = new DescriptiveStatistics();
 

@@ -10,7 +10,7 @@ import static ru.naumen.sd40.log.parser.util.NumberUtils.roundToTwoPlaces;
  * @author dkolmogortsev
  *
  */
-public final class TopData
+public final class TopData implements IDataSet
 {
     private DescriptiveStatistics laStat = new DescriptiveStatistics();
     private DescriptiveStatistics cpuStat = new DescriptiveStatistics();

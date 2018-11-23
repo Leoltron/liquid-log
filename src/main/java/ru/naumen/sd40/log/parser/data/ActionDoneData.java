@@ -12,7 +12,7 @@ import java.util.HashMap;
 /**
  * Created by doki on 22.10.16.
  */
-public final class ActionDoneData
+public final class ActionDoneData implements IDataSet
 {
     ArrayList<Integer> times = new ArrayList<>();
     double min;
