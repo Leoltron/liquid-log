@@ -2,8 +2,6 @@ package ru.naumen.sd40.log.parser;
 
 import com.sun.javafx.UnmodifiableArrayList;
 import org.springframework.stereotype.Component;
-import ru.naumen.sd40.log.parser.parsers.AbstractTimeParserBuilder;
-import ru.naumen.sd40.log.parser.parsers.ILogParser;
 
 import java.util.HashMap;
 import java.util.HashSet;

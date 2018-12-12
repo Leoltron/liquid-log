@@ -4,10 +4,6 @@ import org.influxdb.dto.BatchPoints;
 import org.influxdb.dto.Point;
 import ru.naumen.perfhouse.influx.InfluxDAO;
 import ru.naumen.perfhouse.statdata.Constants;
-import ru.naumen.sd40.log.parser.data.IDataSet;
-import ru.naumen.sd40.log.parser.data.builder.IDataBuilder;
-import ru.naumen.sd40.log.parser.data.writer.IDataWriter;
-import ru.naumen.sd40.log.parser.parsers.IDataStorage;
 
 import java.io.Closeable;
 import java.util.HashMap;
@@ -29,7 +25,7 @@ public class InfluxDAOStorage<TData extends IDataSet> implements IDataStorage<TD
         this(dataBuilder, dataWriter, influxDAO, dbName, System.getProperty("NoCsv") != null);
     }
 
-    public InfluxDAOStorage(IDataBuilder<TData> dataBuilder, IDataWriter<TData> dataWriter, InfluxDAO influxDAO, String dbName, boolean printCsvData)
+    InfluxDAOStorage(IDataBuilder<TData> dataBuilder, IDataWriter<TData> dataWriter, InfluxDAO influxDAO, String dbName, boolean printCsvData)
     {
         this.dataBuilder = dataBuilder;
         this.dataWriter = dataWriter;

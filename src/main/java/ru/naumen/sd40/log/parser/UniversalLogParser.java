@@ -2,9 +2,6 @@ package ru.naumen.sd40.log.parser;
 
 import org.springframework.stereotype.Component;
 import ru.naumen.perfhouse.influx.InfluxDAO;
-import ru.naumen.sd40.log.parser.parsers.AbstractTimeParserBuilder;
-import ru.naumen.sd40.log.parser.parsers.ILogParser;
-import ru.naumen.sd40.log.parser.parsers.ITimeParser;
 import ru.naumen.sd40.log.parser.util.BufferedReaderBuilder;
 
 import java.io.IOException;
