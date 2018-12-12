@@ -1,9 +1,8 @@
 <%@page import="ru.naumen.perfhouse.statdata.Constants"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.Map" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.Date" %>
-<%@ page import="org.influxdb.dto.QueryResult.Series" %>
+<%@ page import="ru.naumen.perfhouse.statdata.IDataType" %>
+<%@ page import="ru.naumen.sd40.log.parser.implementations.gc.data.GCDataType" %>
+<%@ page import="java.util.Collection" %>
 
 <html>
 
@@ -24,9 +23,9 @@
 <script src="http://code.highcharts.com/highcharts.js"></script>
 <%
     Number times[] = (Number[])request.getAttribute(Constants.TIME);
-    Number gcTimes[]=  (Number[])request.getAttribute(Constants.GarbageCollection.GCTIMES);
-    Number gcAvg[] = (Number[])request.getAttribute(Constants.GarbageCollection.AVARAGE_GC_TIME);
-    Number gcMax[] = (Number[])request.getAttribute(Constants.GarbageCollection.MAX_GC_TIME);
+    Number gcTimes[]=  (Number[])request.getAttribute(GCDataType.GC_TIMES);
+    Number gcAvg[] = (Number[])request.getAttribute(GCDataType.AVERAGE_GC_TIME);
+    Number gcMax[] = (Number[])request.getAttribute(GCDataType.MAX_GC_TIME);
     
   //Prepare links
   	String path="";
@@ -64,8 +63,9 @@
   	  	StringBuilder sb = new StringBuilder();
   	  	path = sb.append("?from=").append(from).append("&to=").append(to).append("&maxResults=").append(maxResults).toString();
   	}
-      
-    
+
+
+    Collection<IDataType> dataTypes = (Collection<IDataType>) request.getAttribute("dataTypes");
 %>
 
 <div class="container">
@@ -77,10 +77,12 @@
         Feel free to hide/show specific data by clicking on chart's legend
     </p>
     <ul class="nav nav-pills">
-		<li class="nav-item"><a class="btn btn-outline-primary" href="/history/${client}<%=custom %><%=path%>">Responses</a></li>
-		<li class="nav-item"><a class="btn btn-outline-primary" href="/history/${client}<%=custom %>/actions<%=path%>">Performed actions</a></li>
-		<li class="nav-item"><a class="nav-link active">Garbage Collection</a></li>
-		<li class="nav-item"><a class="btn btn-outline-primary" href="/history/${client}<%=custom %>/top<%=path%>">Top data</a></li>
+        <% for(IDataType type: dataTypes) {
+            if(type.getPathPartName().equals("gc")) {%>
+        <li class="nav-item"><a class="nav-link active"><%=type.getDisplayName()%></a></li>
+        <% }else {%>
+        <li class="nav-item"><a class="btn btn-outline-primary" href="/history/${client}<%=custom %>/<%=type.getPathPartName()%><%=path%>"><%=type.getDisplayName()%></a></li>
+        <% }}%>
 	</ul>
 </div>
 

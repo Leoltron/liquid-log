@@ -2,18 +2,12 @@ package ru.naumen.sd40.log.parser;
 
 import org.junit.Before;
 import org.junit.Test;
-import ru.naumen.sd40.log.parser.data.IDataSet;
-import ru.naumen.sd40.log.parser.data.builder.IDataBuilder;
-import ru.naumen.sd40.log.parser.data.writer.IDataWriter;
-import ru.naumen.sd40.log.parser.parsers.IDataParser;
-import ru.naumen.sd40.log.parser.parsers.IDataStorage;
-import ru.naumen.sd40.log.parser.parsers.ITimeParser;
-import ru.naumen.sd40.log.parser.parsers.LogParser;
 
 import java.text.ParseException;
 
 import static org.mockito.Mockito.*;
 
+@SuppressWarnings({"unchecked", "FieldCanBeLocal"})
 public class LogParserTests
 {
     private static class DataSet implements IDataSet

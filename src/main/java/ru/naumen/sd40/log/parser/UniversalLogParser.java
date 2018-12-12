@@ -2,9 +2,6 @@ package ru.naumen.sd40.log.parser;
 
 import org.springframework.stereotype.Component;
 import ru.naumen.perfhouse.influx.InfluxDAO;
-import ru.naumen.sd40.log.parser.parsers.AbstractTimeParserBuilder;
-import ru.naumen.sd40.log.parser.parsers.ILogParser;
-import ru.naumen.sd40.log.parser.parsers.ITimeParser;
 import ru.naumen.sd40.log.parser.util.BufferedReaderBuilder;
 
 import java.io.IOException;
@@ -34,7 +31,7 @@ public class UniversalLogParser
             throws IOException, ParseException
     {
         ILogParser logParser = parseModes.getLogParser(mode);
-        brBuilder.size(parseModes.getBufferSize(mode));
+        brBuilder.size(logParser.getPreferredBufferSize());
 
         AbstractTimeParserBuilder timeParserBuilder = parseModes.getTimeParserBuilder(mode);
         ITimeParser timeParser = timeParserBuilder.build(logFilePath, timeZone);
