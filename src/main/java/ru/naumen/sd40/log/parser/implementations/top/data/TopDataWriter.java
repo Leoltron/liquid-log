@@ -4,7 +4,7 @@ import org.influxdb.dto.Point;
 import org.springframework.stereotype.Component;
 import ru.naumen.sd40.log.parser.IDataWriter;
 
-import static ru.naumen.perfhouse.statdata.Constants.Top.*;
+import static ru.naumen.sd40.log.parser.implementations.top.data.TopDataType.*;
 
 @Component
 public class TopDataWriter implements IDataWriter<TopData>

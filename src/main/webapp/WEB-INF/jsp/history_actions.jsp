@@ -1,10 +1,8 @@
-<%@page import="ru.naumen.perfhouse.statdata.DataType"%>
 <%@page import="ru.naumen.perfhouse.statdata.Constants"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.Map" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.Date" %>
-<%@ page import="org.influxdb.dto.QueryResult.Series" %>
+<%@ page import="ru.naumen.perfhouse.statdata.IDataType" %>
+<%@ page import="ru.naumen.sd40.log.parser.implementations.sdng.data.actiondone.ActionsDataType" %>
+<%@ page import="java.util.Collection" %>
 
 <html>
 
@@ -24,16 +22,16 @@
 
 <script src="http://code.highcharts.com/highcharts.js"></script>
 <%
-    Number times[] = (Number[])request.getAttribute(Constants.TIME);
-    Number add[]=  (Number[])request.getAttribute(Constants.PerformedActions.ADD_ACTIONS);
-    Number edit[] = (Number[])request.getAttribute(Constants.PerformedActions.EDIT_ACTIONS);
-    Number list[] = (Number[])request.getAttribute(Constants.PerformedActions.LIST_ACTIONS);
-    Number comment[] = (Number[])request.getAttribute(Constants.PerformedActions.COMMENT_ACTIONS);
-    Number form[] = (Number[])request.getAttribute(Constants.PerformedActions.GET_FORM_ACTIONS);
-    Number dtos[] = (Number[])request.getAttribute(Constants.PerformedActions.GET_DT_OBJECT_ACTIONS);
-    Number search[] = (Number[])request.getAttribute(Constants.PerformedActions.SEARCH_ACTIONS);
-    Number actionsSumm[] = (Number[])request.getAttribute(Constants.PerformedActions.ACTIONS_COUNT);
-    Number catalog[] = (Number[])request.getAttribute(Constants.PerformedActions.GET_CATALOG_ACTIONS);
+    Number[] times = (Number[]) request.getAttribute(Constants.TIME);
+    Number[] add = (Number[]) request.getAttribute(ActionsDataType.ADD_ACTIONS);
+    Number[] edit = (Number[]) request.getAttribute(ActionsDataType.EDIT_ACTIONS);
+    Number[] list = (Number[]) request.getAttribute(ActionsDataType.LIST_ACTIONS);
+    Number[] comment = (Number[]) request.getAttribute(ActionsDataType.COMMENT_ACTIONS);
+    Number[] form = (Number[]) request.getAttribute(ActionsDataType.GET_FORM_ACTIONS);
+    Number[] dtos = (Number[]) request.getAttribute(ActionsDataType.GET_DT_OBJECT_ACTIONS);
+    Number[] search = (Number[]) request.getAttribute(ActionsDataType.SEARCH_ACTIONS);
+    Number[] actionsSumm = (Number[]) request.getAttribute(ActionsDataType.ACTIONS_COUNT);
+    Number[] catalog = (Number[]) request.getAttribute(ActionsDataType.GET_CATALOG_ACTIONS);
 
     
   //Prepare links
@@ -44,7 +42,7 @@
   	Object month = request.getAttribute("month");
   	Object day = request.getAttribute("day");
       
-      String countParam = (String)request.getParameter("count");
+      String countParam = request.getParameter("count");
       
   	String params = "";
   	String datePath = "";
@@ -72,7 +70,8 @@
   	  	StringBuilder sb = new StringBuilder();
   	  	path = sb.append("?from=").append(from).append("&to=").append(to).append("&maxResults=").append(maxResults).toString();
   	}
-      
+
+    Collection<IDataType> dataTypes = (Collection<IDataType>) request.getAttribute("dataTypes");
 %>
 
 <div class="container">
@@ -84,10 +83,12 @@
         Feel free to hide/show specific data by clicking on chart's legend
     </p>
     <ul class="nav nav-pills">
-		<li class="nav-item"><a class="btn btn-outline-primary" href="/history/${client}<%=custom %><%=path%>">Responses</a></li>
-		<li class="nav-item"><a class="nav-link active">Performed actions</a></li>
-		<li class="nav-item"><a class="btn btn-outline-primary" href="/history/${client}<%=custom %>/gc<%=path%>">Garbage Collection</a></li>
-		<li class="nav-item"><a class="btn btn-outline-primary" href="/history/${client}<%=custom %>/top<%=path%>">Top data</a></li>
+        <% for(IDataType type: dataTypes) {
+            if(type instanceof ActionsDataType) {%>
+        <li class="nav-item"><a class="nav-link active"><%=type.getDisplayName()%></a></li>
+        <% }else {%>
+        <li class="nav-item"><a class="btn btn-outline-primary" href="/history/${client}<%=custom %>/<%=type.getPathPartName()%><%=path%>"><%=type.getDisplayName()%></a></li>
+        <% }}%>
 	</ul>
 </div>
 
@@ -174,7 +175,7 @@ var summ = [];
 
 <% } %>
 
-document.getElementById('date_range').innerHTML += 'From: '+new Date(times[<%=times.length%>-1])+'<br/>To:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' +new Date(times[0])
+document.getElementById('date_range').innerHTML += 'From: '+new Date(times[<%=times.length%>-1])+'<br/>To:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' +new Date(times[0]);
 
 if(localStorage.getItem('addActions')==null){
     localStorage.setItem('addActions', 'false');

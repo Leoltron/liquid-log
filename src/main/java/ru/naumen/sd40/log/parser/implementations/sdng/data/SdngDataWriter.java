@@ -6,8 +6,9 @@ import ru.naumen.sd40.log.parser.IDataWriter;
 import ru.naumen.sd40.log.parser.implementations.sdng.data.actiondone.ActionDoneData;
 import ru.naumen.sd40.log.parser.implementations.sdng.data.error.ErrorData;
 
-import static ru.naumen.perfhouse.statdata.Constants.PerformedActions.*;
-import static ru.naumen.perfhouse.statdata.Constants.ResponseTimes.*;
+import static ru.naumen.sd40.log.parser.implementations.sdng.data.actiondone.ActionsDataType.*;
+import static ru.naumen.sd40.log.parser.implementations.sdng.data.error.ResponseDataType.*;
+
 
 @Component
 public class SdngDataWriter implements IDataWriter<SdngData>
@@ -16,6 +17,7 @@ public class SdngDataWriter implements IDataWriter<SdngData>
     public void writeFields(Point.Builder builder, long time, SdngData sdngData, boolean printCsvData)
     {
         ActionDoneData actionDoneData = sdngData.getActionDoneData();
+        actionDoneData.calculate();
         ErrorData errorData = sdngData.getErrorData();
         if (printCsvData)
         {

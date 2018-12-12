@@ -1,9 +1,8 @@
 <%@page import="ru.naumen.perfhouse.statdata.Constants"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.Map" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.Date" %>
-<%@ page import="org.influxdb.dto.QueryResult.Series" %>
+<%@ page import="ru.naumen.perfhouse.statdata.IDataType" %>
+<%@ page import="ru.naumen.sd40.log.parser.implementations.top.data.TopDataType" %>
+<%@ page import="java.util.Collection" %>
 
 <html>
 
@@ -19,12 +18,14 @@
     <link rel="stylesheet" href="/css/style.css"/>
     <style>
         .col-xs-40 {
-        	width: 34%;
+            width: 34%;
         }
+
         .col-xs-10 {
-        	width: 11%;
+            width: 11%;
         }
-    }
+
+        }
     </style>
 </head>
 
@@ -32,13 +33,13 @@
 
 <script src="http://code.highcharts.com/highcharts.js"></script>
 <%
-    Number times[] = (Number[])request.getAttribute(Constants.TIME);
-    Number avgLa[]=  (Number[])request.getAttribute(Constants.Top.AVG_LA);
-    Number avgCpu[]=  (Number[])request.getAttribute(Constants.Top.AVG_CPU);
-    Number avgMem[]=  (Number[])request.getAttribute(Constants.Top.AVG_MEM);
-    Number maxLa[]=  (Number[])request.getAttribute(Constants.Top.MAX_LA);
-    Number maxCpu[]=  (Number[])request.getAttribute(Constants.Top.MAX_CPU);
-    Number maxMem[]=  (Number[])request.getAttribute(Constants.Top.MAX_MEM);
+    Number[] times = (Number[]) request.getAttribute(Constants.TIME);
+    Number[] avgLa = (Number[]) request.getAttribute(TopDataType.AVG_LA);
+    Number[] avgCpu = (Number[]) request.getAttribute(TopDataType.AVG_CPU);
+    Number[] avgMem = (Number[]) request.getAttribute(TopDataType.AVG_MEM);
+    Number[] maxLa = (Number[]) request.getAttribute(TopDataType.MAX_LA);
+    Number[] maxCpu = (Number[]) request.getAttribute(TopDataType.MAX_CPU);
+    Number[] maxMem = (Number[]) request.getAttribute(TopDataType.MAX_MEM);
     
   //Prepare links
   	String path="";
@@ -48,7 +49,7 @@
   	Object month = request.getAttribute("month");
   	Object day = request.getAttribute("day");
       
-      String countParam = (String)request.getParameter("count");
+      String countParam = request.getParameter("count");
       
   	String params = "";
   	String datePath = "";
@@ -76,7 +77,8 @@
   	  	StringBuilder sb = new StringBuilder();
   	  	path = sb.append("?from=").append(from).append("&to=").append(to).append("&maxResults=").append(maxResults).toString();
   	}
-      
+
+    Collection<IDataType> dataTypes = (Collection<IDataType>) request.getAttribute("dataTypes");
 %>
 
 <div class="container">
@@ -88,10 +90,12 @@
         Feel free to hide/show specific data by clicking on chart's legend
     </p>
     <ul class="nav nav-pills">
-		<li class="nav-item"><a class="btn btn-outline-primary" href="/history/${client}<%=custom %><%=path %>">Responses</a></li>
-		<li class="nav-item"><a class="btn btn-outline-primary" href="/history/${client}<%=custom %>/actions<%=path %>">Performed actions</a></li>
-		<li class="nav-item"><a class="btn btn-outline-primary" href="/history/${client}<%=custom %>/gc<%=path %>">Garbage Collection</a></li>
-		<li class="nav-item"><a class="nav-link active" >Top data</a></li>
+        <% for(IDataType type: dataTypes) {
+            if(type instanceof TopDataType) {%>
+        <li class="nav-item"><a class="nav-link active"><%=type.getDisplayName()%></a></li>
+        <% }else {%>
+        <li class="nav-item"><a class="btn btn-outline-primary" href="/history/${client}<%=custom %>/<%=type.getPathPartName()%><%=path%>"><%=type.getDisplayName()%></a></li>
+        <% }}%>
 	</ul>
 </div>
 
@@ -158,7 +162,7 @@ var maxMem = [];
     maxMem.push([new Date(<%= times[i] %>), <%= maxMem[i] %>]);
 <% } %>
 
-document.getElementById('date_range').innerHTML += 'From: '+new Date(times[<%=times.length%>-1])+'<br/>To:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' +new Date(times[0])
+document.getElementById('date_range').innerHTML += 'From: '+new Date(times[<%=times.length%>-1])+'<br/>To:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' +new Date(times[0]);
 
 if(localStorage.getItem('avgLa')==null){
     localStorage.setItem('avgLa', 'false');
@@ -242,22 +246,22 @@ var myChart = Highcharts.chart('cpu-chart-container', {
                         var series = this.yAxis.series;
                         seriesLen = series.length;
 
-                        if(event.target.index==0){
+                        if(event.target.index===0){
                             localStorage.setItem('avgLa', !series[0].visible);
                         }
-                        if(event.target.index==1){
+                        if(event.target.index===1){
                             localStorage.setItem('avgCpu', !series[1].visible);
                         }
-                        if(event.target.index==2){
+                        if(event.target.index===2){
                             localStorage.setItem('avgMem', !series[2].visible);
                         }
-                        if(event.target.index==3){
+                        if(event.target.index===3){
                             localStorage.setItem('maxLa', !series[3].visible);
                         }
-                        if(event.target.index==4){
+                        if(event.target.index===4){
                             localStorage.setItem('maxCpu', !series[4].visible);
                         }
-                        if(event.target.index==5){
+                        if(event.target.index===5){
                             localStorage.setItem('maxMem', !series[5].visible);
                         }
                     }
