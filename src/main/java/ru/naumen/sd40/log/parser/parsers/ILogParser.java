@@ -15,4 +15,6 @@ public interface ILogParser<TData> extends IModeCompatible
                             String influxDbName,
                             boolean printOutput,
                             BufferedReaderBuilder brBuilder) throws IOException, ParseException;
+
+    int getPreferredBufferSize();
 }

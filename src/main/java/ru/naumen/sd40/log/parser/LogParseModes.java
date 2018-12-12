@@ -4,7 +4,6 @@ import com.sun.javafx.UnmodifiableArrayList;
 import org.springframework.stereotype.Component;
 import ru.naumen.sd40.log.parser.parsers.AbstractTimeParserBuilder;
 import ru.naumen.sd40.log.parser.parsers.ILogParser;
-import ru.naumen.sd40.log.parser.parsers.ParseModeNames;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -62,17 +61,6 @@ public class LogParseModes
         }
 
         return timeParserBuilder;
-    }
-
-    int getBufferSize(String mode)
-    {
-        switch (mode.toLowerCase())
-        {
-            case ParseModeNames.SDNG:
-                return 32 * 1024 * 1024;
-            default:
-                return 8 * 1024;
-        }
     }
 
     public List<String> getWorkingParseModes()

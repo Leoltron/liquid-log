@@ -73,4 +73,10 @@ public abstract class LogParser<TData extends IDataSet> implements ILogParser<TD
             writer.onDataChunkFinished(timeParser.getLastParsedTime());
         }
     }
+
+    @Override
+    public int getPreferredBufferSize()
+    {
+        return 8 * 1024;
+    }
 }

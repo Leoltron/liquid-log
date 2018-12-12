@@ -1,9 +1,5 @@
 package ru.naumen.perfhouse.controllers;
 
-import java.text.ParseException;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -11,10 +7,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
 import ru.naumen.perfhouse.statdata.DataType;
 import ru.naumen.perfhouse.statdata.StatData;
 import ru.naumen.perfhouse.statdata.StatDataService;
+
+import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by doki on 23.10.16.
@@ -199,7 +198,7 @@ public class HistoryController
     public ModelAndView customIndex(@PathVariable("client") String client, @RequestParam("from") String from,
             @RequestParam("to") String to, @RequestParam("maxResults") int maxResults) throws ParseException
     {
-        return getDataAndViewCustom(client, DataType.RESPONSE, from, to, maxResults, HISTORY_VIEW);
+        return  getDataAndViewCustom(client, DataType.RESPONSE, from, to, maxResults, HISTORY_VIEW);
     }
 
     @RequestMapping(path = "/history/{client}/custom/actions")

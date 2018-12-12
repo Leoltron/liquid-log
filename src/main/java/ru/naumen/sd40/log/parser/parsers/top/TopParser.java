@@ -37,4 +37,10 @@ public class TopParser extends LogParser<TopData>
             dataParser.parseLine(line, dataStorage.getData(prevTime));
         }
     }
+
+    @Override
+    public int getPreferredBufferSize()
+    {
+        return 32 * 1024 * 1024;
+    }
 }

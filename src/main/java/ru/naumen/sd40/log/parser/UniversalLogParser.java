@@ -34,7 +34,7 @@ public class UniversalLogParser
             throws IOException, ParseException
     {
         ILogParser logParser = parseModes.getLogParser(mode);
-        brBuilder.size(parseModes.getBufferSize(mode));
+        brBuilder.size(logParser.getPreferredBufferSize());
 
         AbstractTimeParserBuilder timeParserBuilder = parseModes.getTimeParserBuilder(mode);
         ITimeParser timeParser = timeParserBuilder.build(logFilePath, timeZone);
