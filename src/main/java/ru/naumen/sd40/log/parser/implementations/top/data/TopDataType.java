@@ -2,14 +2,14 @@ package ru.naumen.sd40.log.parser.implementations.top.data;
 
 import com.google.common.collect.Lists;
 import org.springframework.stereotype.Component;
-import ru.naumen.perfhouse.statdata.StatDataType;
+import ru.naumen.perfhouse.statdata.AbstractDataType;
 
 import java.util.List;
 
 import static ru.naumen.perfhouse.statdata.Constants.TIME;
 
 @Component
-public class TopDataType extends StatDataType
+public class TopDataType extends AbstractDataType
 {
     public static final String AVG_LA = "avgLa";
     public static final String AVG_CPU = "avgCpu";
