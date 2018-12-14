@@ -2,14 +2,14 @@ package ru.naumen.perfhouse.statdata;
 
 import java.util.List;
 
-public abstract class StatDataType implements IDataType
+public abstract class AbstractDataType implements IDataType
 {
     private List<String> properties;
     private String pathPart;
     private String viewName;
     private String displayName;
 
-    protected StatDataType(List<String> properties, String pathPart, String viewName, String displayName)
+    protected AbstractDataType(List<String> properties, String pathPart, String viewName, String displayName)
     {
         this.properties = properties;
         this.pathPart = pathPart;

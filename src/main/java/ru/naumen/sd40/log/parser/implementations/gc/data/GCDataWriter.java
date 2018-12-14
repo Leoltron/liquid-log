@@ -6,6 +6,7 @@ import ru.naumen.sd40.log.parser.IDataWriter;
 
 import static ru.naumen.sd40.log.parser.implementations.gc.data.GCDataType.*;
 
+
 @Component
 public class GCDataWriter implements IDataWriter<GCData>
 {

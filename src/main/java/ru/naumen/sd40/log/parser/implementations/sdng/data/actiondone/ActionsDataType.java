@@ -2,14 +2,14 @@ package ru.naumen.sd40.log.parser.implementations.sdng.data.actiondone;
 
 import com.google.common.collect.Lists;
 import org.springframework.stereotype.Component;
-import ru.naumen.perfhouse.statdata.StatDataType;
+import ru.naumen.perfhouse.statdata.AbstractDataType;
 
 import java.util.List;
 
 import static ru.naumen.perfhouse.statdata.Constants.TIME;
 
 @Component
-public class ActionsDataType extends StatDataType
+public class ActionsDataType extends AbstractDataType
 {
     public static final String ADD_ACTIONS = "addActions";
     public static final String EDIT_ACTIONS = "editActions";
